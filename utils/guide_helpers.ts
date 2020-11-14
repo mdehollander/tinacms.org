@@ -22,6 +22,7 @@ export interface GuideMeta {
 export interface GuideCategoryMeta {
   key: string
   title: string
+  weight?: number
 }
 
 export interface GuideNavProps {
@@ -85,7 +86,6 @@ export const getGuideCategoryMeta = async (
 }
 
 export const getGuideNavProps = async (): Promise<any> => {
-  let props = {}
   const guides = await getAllGuides()
 
   const categories: string[] = Array.from(
@@ -98,16 +98,20 @@ export const getGuideNavProps = async (): Promise<any> => {
         path.resolve(`./content/guides/${category}/meta.json`)
       )
       return {
+        weight: Number(categoryMeta.weight),
         id: categoryMeta.key,
         title: categoryMeta.title,
         collapsible: false,
         items: guides
-          .filter(guide => guide.category === category)
+          .filter(
+            guide =>
+              guide && guide.steps.length > 0 && guide.category === category
+          )
           .map(guide => {
             return {
               id: guide.key,
               title: guide.title,
-              slug: guide.steps[0].slug,
+              slug: guide.steps[0].slug || '',
             }
           }),
       }

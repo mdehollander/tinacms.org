@@ -1,5 +1,5 @@
 import DocTemplate from './[...slug]'
-import { getDocProps } from '../../utils/docs/getDocProps'
+import { getDocProps } from 'utils/docs/getDocProps'
 import { GetStaticProps } from 'next'
 import { GithubError } from 'next-tinacms-github'
 
@@ -10,7 +10,7 @@ export const getStaticProps: GetStaticProps = async function(props) {
     if (e instanceof GithubError) {
       return {
         props: {
-          previewError: { ...e }, //workaround since we cant return error as JSON
+          error: { ...e }, //workaround since we cant return error as JSON
         },
       }
     } else {

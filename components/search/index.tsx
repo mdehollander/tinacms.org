@@ -58,7 +58,7 @@ const ClientSideDismissible = (props: DismissibleProps & { children: any }) => {
   return props.children
 }
 
-export default function Search({ indices, collapse }: any) {
+export default function Search({ indices, collapse, expanded = false }: any) {
   const ref = createRef()
   const [query, setQuery] = useState(``)
   const [focus, setFocus] = useState(false)
@@ -78,6 +78,7 @@ export default function Search({ indices, collapse }: any) {
     >
       <Input
         onMouseUp={() => setTimeout(() => setFocus(true), 0)} //workaround, otherwise click to open search also closes
+        expanded={expanded}
         {...{ collapse, focus }}
       />
       {focus && (
@@ -88,7 +89,7 @@ export default function Search({ indices, collapse }: any) {
             setFocus(false)
           }}
         >
-          {query.length > 0 && (
+          {query?.length > 0 && (
             <HitsWrapper show={true}>
               <HitsResults>
                 <AllIndicesResults />
@@ -142,7 +143,17 @@ const AllIndicesResults = connectStateResults(
       <>
         {children}
         {!hasResults && (
-          <NoResultsLabel>No results found for '{state.query}'</NoResultsLabel>
+          <NoResultsLabel>
+            No results found for '{state.query}'. Check the &nbsp;
+            <a href="https://community.tinacms.org" target="_blank">
+              Forum
+            </a>
+            &nbsp; or &nbsp;
+            <a href="https://github.com/tinacms/tinacms/issues" target="_blank">
+              GitHub issues
+            </a>
+            .
+          </NoResultsLabel>
         )}
       </>
     )

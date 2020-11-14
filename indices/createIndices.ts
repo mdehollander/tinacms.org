@@ -1,27 +1,63 @@
 require('dotenv').config()
 
-import algoliasearch from 'algoliasearch'
+import algoliasearch, { SearchIndex } from 'algoliasearch'
+import { stripMarkdown } from '../utils/blog_helpers'
 import fetchDocs from '../data-api/fetchDocs'
 import fetchBlogs from '../data-api/fetchBlogs'
 import fetchGuides from '../data-api/fetchGuides'
 
-const MAX_BODY_LENGTH = 3000
+const MAX_BODY_LENGTH = 200
 
-const mapContentToIndex = ({
+const mapContentToIndex = async ({
   content,
   ...obj
 }: Partial<{ data: { slug: string }; content: string }>) => {
   return {
     ...obj.data,
-    excerpt: (content || '').substring(0, MAX_BODY_LENGTH),
+    excerpt: await stripMarkdown((content || '').substring(0, MAX_BODY_LENGTH)),
     objectID: obj.data.slug,
   }
 }
 
 const saveIndex = async (client: any, indexName: string, data: any) => {
-  const index = client.initIndex(indexName)
-  const result = await index.saveObjects(data)
-  console.log(`updated ${indexName}: ${result.objectIDs}`)
+  try {
+    const index = client.initIndex(indexName)
+    const result = await index.saveObjects(data)
+    console.log(
+      `${indexName}: added/updated ${result.objectIDs.length} entries`
+    )
+    const numRemoved = await cleanupIndex(index, data)
+    if (numRemoved > 0) {
+      console.log(`${indexName}: removed ${numRemoved} entries`)
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const cleanupIndex = async (index: SearchIndex, currentData: any) => {
+  let currentObjects: Set<string> = new Set()
+  let objectsToDelete: Set<string> = new Set()
+  let numRemoved = 0
+  currentData.map(item => {
+    currentObjects.add(item.objectID)
+  })
+  await index.browseObjects({
+    batch: hits => {
+      hits.forEach(hit => {
+        if (!currentObjects.has(hit.objectID)) {
+          objectsToDelete.add(hit.objectID)
+        }
+      })
+    },
+  })
+  await Promise.all(
+    Array.from(objectsToDelete).map(async objectID => {
+      await index.deleteObject(objectID)
+      numRemoved++
+    })
+  )
+  return numRemoved
 }
 
 const createIndices = async () => {
@@ -30,13 +66,25 @@ const createIndices = async () => {
     process.env.ALGOLIA_ADMIN_KEY
   )
   const docs = await fetchDocs()
-  await saveIndex(client, 'Tina-Docs-Next', docs.map(mapContentToIndex))
+  await saveIndex(
+    client,
+    'Tina-Docs-Next',
+    await Promise.all(docs.map(mapContentToIndex))
+  )
 
   const blogs = await fetchBlogs()
-  await saveIndex(client, 'Tina-Blogs-Next', blogs.map(mapContentToIndex))
+  await saveIndex(
+    client,
+    'Tina-Blogs-Next',
+    await Promise.all(blogs.map(mapContentToIndex))
+  )
 
   const guides = await fetchGuides()
-  await saveIndex(client, 'Tina-Guides-Next', guides.map(mapContentToIndex))
+  await saveIndex(
+    client,
+    'Tina-Guides-Next',
+    await Promise.all(guides.map(mapContentToIndex))
+  )
 }
 
 createIndices()

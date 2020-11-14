@@ -1,7 +1,7 @@
 ---
 title: Creating Forms
+last_edited: '2020-10-04T11:09:29.348Z'
 ---
-
 After wrapping our App component in the Tina Provider, we can create forms by calling the `useForm` hook inside our Post component. `useForm` returns two values in an array, similar to `React.useState`, which we assign via destructuring:
 
 ```js
@@ -25,28 +25,30 @@ export default function Post({ post: initialPost, morePosts, preview }) {
 
 ## Form Configuration
 
-For details on how to configure forms, take a look at our [form configuration docs](/docs/forms#form-configuration). For the purposes of this guide, we will use the following configuration:
+For details on how to configure forms, take a look at our [form configuration docs](/docs/plugins/forms#form-configuration). For the purposes of this guide, we will use the following configuration:
 
 ```js
 const formConfig = {
-  id: initialPost.slug,           // a unique identifier for this instance of the form
-  label: 'Blog Post',             // name of the form to appear in the sidebar
-  initialValues: initialPost,     // populate the form with starting values
-  onSubmit: (values) => {         // do something with the data when the form is submitted
+  id: initialPost.slug, // a unique identifier for this instance of the form
+  label: 'Blog Post', // name of the form to appear in the sidebar
+  initialValues: initialPost, // populate the form with starting values
+  onSubmit: values => {
+    // do something with the data when the form is submitted
     alert(`Submitting ${values.title}`)
-  }
-  fields: [                    // define fields to appear in the form
+  },
+  fields: [
+    // define fields to appear in the form
     {
-      name: 'title',           // field name maps to the corresponding key in initialValues
-      label: 'Post Title',     // label that appears above the field
-      component: 'text',       // the component used to handle UI and input to the field
+      name: 'title', // field name maps to the corresponding key in initialValues
+      label: 'Post Title', // label that appears above the field
+      component: 'text', // the component used to handle UI and input to the field
     },
     {
       name: 'rawMarkdownBody', // remember we want `rawMarkdownBody`, not `content` here
       label: 'Content',
-      component: 'markdown',   // `component` accepts a predefined components or a custom React component
+      component: 'markdown', // `component` accepts a predefined components or a custom React component
     },
-  ]
+  ],
 }
 ```
 
@@ -60,10 +62,10 @@ First, we'll need to import `useForm` and `usePlugin` from the `tinacms` package
 import { useForm, usePlugin } from 'tinacms'
 ```
 
-Now, just add the form to the `Post` component with the configuration we laid out previously:
+Then, add the form to the `Post` component with the configuration we laid out previously:
 
 ```js
-export default function Post({ post, morePosts, preview }) {
+export default function Post({ post: initialPost, morePosts, preview }) {
   //...
 
   const formConfig = {
@@ -88,13 +90,6 @@ export default function Post({ post, morePosts, preview }) {
   }
   const [post, form] = useForm(formConfig)
 
-  const [htmlContent, setHtmlContent] = useState(post.content)
-  const initialContent = useMemo(() => post.rawMarkdownBody, [])
-  useEffect(() => {
-    if (initialContent == post.rawMarkdownBody) return
-    markdownToHtml(post.rawMarkdownBody).then(setHtmlContent)
-  }, [post.rawMarkdownBody])
-
   return (
     //...
   )
@@ -112,12 +107,44 @@ In order to hook our form into the sidebar, we'll need to call `usePlugin` and p
 + usePlugin(form)
 ```
 
-That's it!
-
 > **Why do we need to call usePlugin?**
 >
-> There are a few different ways to use forms: in the sidebar, in the global utility menu, and [inline](/docs/inline-editing). How you plan to use the form will determine how you should set it up in the CMS.
+> There are a few different ways to use forms: in the sidebar, in the global utility menu, and [inline](/docs/ui/inline-editing). How you plan to use the form will determine how you should set it up in the CMS.
+
+## Installing the WYSIWYG Plugin
+
+We're almost done! If you've made it this far, the form in your sidebar will look something like this:
+
+![](/img/image.png)
+
+As you can see, the Markdown field is not displaying. This field creates a WYSIWYG editor that displays content as rich text but stores as Markdown. Because the WYSIWYG editor contains a lot of code and this can significantly increase page weight, it is contained in a separate package. This gives you the option of [dynamically importing the library](/packages/react-tinacms-editor/#dynamic-imports) so that visitors to your site who aren't interested in doing any editing don't have to download the extra code.
+
+For the sake of simplicity, we won't worry about dynamically importing the WYSIWYG and will just import it directly.
+
+### Install the WYSIWYG
+
+    yarn add react-tinacms-editor react-tinacms-inline
+
+### Add _MarkdownFieldPlugin_
+
+In our `_app.js` file, we can register `MarkdownFieldPlugin` when we instantiate the CMS:
+
+```diff
+  import '../styles/index.css'
+  import { withTina } from 'tinacms'
++ import { MarkdownFieldPlugin } from 'react-tinacms-editor'
+
+  function MyApp({ Component, pageProps }) {
+    return <Component {...pageProps} />
+  }
+
+  export default withTina(MyApp, {
+    enabled: true,
+    sidebar: true,
++   plugins: [MarkdownFieldPlugin],
+  })
+```
 
 ## More Info
 
-- [Tina Docs: Forms](/docs/forms)
+* [Tina Docs: Forms](/docs/plugins/forms)

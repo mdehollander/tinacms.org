@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import App from 'next/app'
 import Head from 'next/head'
 import { TinaCMS, TinaProvider, ModalProvider } from 'tinacms'
@@ -6,40 +6,65 @@ import { DefaultSeo } from 'next-seo'
 import data from '../content/siteConfig.json'
 import TagManager from 'react-gtm-module'
 import { GlobalStyles, FontLoader } from '@tinacms/styles'
-import { BrowserStorageApi } from '../utils/plugins/browser-storage-api/BrowserStorageApi'
+import { BrowserStorageApi } from 'utils/plugins/browser-storage-api/BrowserStorageApi'
 import { GithubClient, TinacmsGithubProvider } from 'react-tinacms-github'
-import { GlobalStyle } from '../components/styles/GlobalStyle'
+import { GlobalStyle } from 'components/styles/GlobalStyle'
+import 'components/styles/fontImports.css'
+import path from 'path'
+import { BlogPostCreatorPlugin } from '../tinacms/BlogPostCreator'
+import { ReleaseNotesCreatorPlugin } from '../tinacms/ReleaseNotesCreator'
+import { NextGithubMediaStore } from '../utils/plugins/NextGithubMediaStore'
+
+// the following line will cause all content files to be available in a serverless context
+path.resolve('./content/')
+
+const github = new GithubClient({
+  proxy: '/api/proxy-github',
+  authCallbackRoute: '/api/create-github-access-token',
+  clientId: process.env.GITHUB_CLIENT_ID,
+  baseRepoFullName: process.env.BASE_REPO_FULL_NAME,
+})
 
 const MainLayout = ({ Component, pageProps }) => {
   const tinaConfig = {
     enabled: pageProps.preview,
+    toolbar: pageProps.preview,
     apis: {
-      github: new GithubClient({
-        proxy: '/api/proxy-github',
-        authCallbackRoute: '/api/create-github-access-token',
-        clientId: process.env.GITHUB_CLIENT_ID,
-        baseRepoFullName: process.env.BASE_REPO_FULL_NAME,
-      }),
+      github,
       storage:
         typeof window !== 'undefined'
           ? new BrowserStorageApi(window.localStorage)
           : {},
     },
-    sidebar: {
-      hidden: true,
-      position: 'displace' as any,
-    },
-    toolbar: {
-      hidden: !pageProps.preview,
-    },
+    media: new NextGithubMediaStore(github),
+    plugins: [BlogPostCreatorPlugin, ReleaseNotesCreatorPlugin],
   }
 
   const cms = React.useMemo(() => new TinaCMS(tinaConfig), [])
 
-  const enterEditMode = () =>
-    fetch(`/api/preview`).then(() => {
-      window.location.href = window.location.pathname
+  useEffect(() => {
+    import('react-tinacms-date').then(({ DateFieldPlugin }) => {
+      cms.plugins.add(DateFieldPlugin)
     })
+  }, [pageProps.preview])
+
+  const enterEditMode = async () => {
+    const token = localStorage.getItem('tinacms-github-token') || null
+    const headers = new Headers()
+
+    if (token) {
+      headers.append('Authorization', 'Bearer ' + token)
+    }
+
+    const response = await fetch(`/api/preview`, { headers })
+    const data = await response.json()
+
+    if (response.status === 200) {
+      window.location.reload()
+    } else {
+      throw new Error(data.message)
+    }
+  }
 
   const exitEditMode = () => {
     fetch(`/api/reset-preview`).then(() => {
@@ -55,9 +80,8 @@ const MainLayout = ({ Component, pageProps }) => {
       {loadFonts && <FontLoader />}
       <ModalProvider>
         <TinacmsGithubProvider
-          enterEditMode={enterEditMode}
-          exitEditMode={exitEditMode}
-          editMode={pageProps.preview}
+          onLogin={enterEditMode}
+          onLogout={exitEditMode}
           error={pageProps.error}
         >
           <DefaultSeo

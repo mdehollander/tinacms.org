@@ -7,6 +7,8 @@ export const BLOG_PATH = '/blog/[slug]'
 const docsPattern = new RegExp('(.)?/docs/(.)+')
 const blogIndexPattern = new RegExp('(.)?/blog/page/[0-9]+')
 const blogPattern = new RegExp('(.)?/blog/(.)+')
+const guidePattern = RegExp('(.)?/guides/(.)+')
+const packagePattern = RegExp('(.)?/packages/(.)+')
 
 export function getDynamicPath(url: string) {
   if (docsPattern.test(url)) {
@@ -19,6 +21,12 @@ export function getDynamicPath(url: string) {
 
   if (blogPattern.test(url)) {
     return '/blog/[slug]'
+  }
+  if (guidePattern.test(url)) {
+    return '/guides/[category]/[guide]/[step]'
+  }
+  if (packagePattern.test(url)) {
+    return '/packages/[slug]'
   }
 
   return url

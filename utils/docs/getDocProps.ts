@@ -1,5 +1,13 @@
-import { getJsonPreviewProps } from '../getJsonPreviewProps'
-import { getMarkdownPreviewProps } from '../getMarkdownFile'
+import { getJsonFile } from '../getJsonPreviewProps'
+import {
+  getMarkdownPreviewProps,
+  getMarkdownFile,
+} from '../getMarkdownPreviewProps'
+import { NotFoundError } from 'utils/error/NotFoundError'
+
+export async function getDocsNav(preview: boolean, previewData: any) {
+  return getJsonFile('content/toc-doc.json', preview, previewData)
+}
 
 export async function getDocProps({ preview, previewData }: any, slug: string) {
   const currentDoc = (
@@ -10,44 +18,48 @@ export async function getDocProps({ preview, previewData }: any, slug: string) {
     )
   ).props
 
-  const previewProps = await getJsonPreviewProps(
-    'content/toc-doc.json',
-    preview,
-    previewData
-  )
-  const docsNavData = previewProps.props.file.data
+  const docsNav = await getDocsNav(preview, previewData)
 
-  const nextDocPage =
-    currentDoc.file.data.frontmatter.next &&
-    (
-      await getMarkdownPreviewProps(
-        `content${currentDoc.file.data.frontmatter.next}.md`,
-        preview,
-        previewData
-      )
-    ).props.file.data.frontmatter
-  const prevDocPage =
-    currentDoc.file.data.frontmatter.prev &&
-    (
-      await getMarkdownPreviewProps(
-        `content${currentDoc.file.data.frontmatter.prev}.md`,
-        preview,
-        previewData
-      )
-    ).props.file.data.frontmatter
+  if (!currentDoc || currentDoc.error || !docsNav) {
+    throw new NotFoundError('Document not found')
+  }
 
   return {
     props: {
       ...currentDoc,
-      docsNav: docsNavData,
-      nextPage: {
-        slug: currentDoc.file.data.frontmatter.next || null,
-        title: (nextDocPage && nextDocPage.title) || null,
-      },
-      prevPage: {
-        slug: currentDoc.file.data.frontmatter.prev || null,
-        title: (prevDocPage && prevDocPage.title) || null,
-      },
+      docsNav: docsNav.data,
+      nextPage: await getPageRef(
+        currentDoc.file.data.frontmatter.next,
+        preview,
+        previewData
+      ),
+      prevPage: await getPageRef(
+        currentDoc.file.data.frontmatter.prev,
+        preview,
+        previewData
+      ),
     },
   }
+}
+
+export async function getPageRef(
+  slug: string = null,
+  preview: boolean,
+  previewData: any
+) {
+  if (!slug) {
+    return {
+      slug: null,
+      title: null,
+    }
+  }
+  const prevDoc = await getMarkdownFile(
+    `content${slug}.md`,
+    preview,
+    previewData
+  )
+
+  const { title } = prevDoc.data.frontmatter
+
+  return { slug, title }
 }

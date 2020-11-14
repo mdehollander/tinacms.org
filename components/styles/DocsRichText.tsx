@@ -14,9 +14,11 @@ const DocsRichText = css`
   h4,
   h5,
   h6 {
-    margin: 2rem 0 1.5rem 0;
+    padding-top: 1rem;
+    margin: 1rem 0 1.5rem 0;
     &:first-child {
       margin-top: 0;
+      padding-top: 0;
     }
     &:last-child {
       margin-bottom: 0;
@@ -179,6 +181,20 @@ const DocsRichText = css`
     padding: 1em;
   }
 
+  li blockquote {
+    display: block;
+    border: none;
+    border-radius: 0;
+    background: none;
+    padding: 0 0 0 1rem;
+    border-left: 1px solid var(--color-seafoam-dark);
+    margin: -1rem 0 1.5rem 0 !important;
+
+    a {
+      font-size: 1rem;
+    }
+  }
+
   hr {
     border: none;
     border-bottom: 3px dotted var(--color-primary);
@@ -219,6 +235,21 @@ const DocsRichText = css`
     border-style: solid;
     border-color: rgb(237, 238, 238);
     border-image: initial;
+    max-width: 100%;
+    overflow-x: auto;
+    /* fix wrapping issues breaking layout */
+    white-space: pre-wrap !important;
+    white-space: -moz-pre-wrap !important;
+    white-space: -pre-wrap !important;
+    white-space: -o-pre-wrap !important;
+    word-wrap: break-word !important;
+    code {
+      white-space: pre-wrap !important;
+      white-space: -moz-pre-wrap !important;
+      white-space: -pre-wrap !important;
+      white-space: -o-pre-wrap !important;
+      word-wrap: break-word !important;
+    }
   }
 
   table {

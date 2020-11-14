@@ -3,6 +3,8 @@ title: 'Announcing TinaCMS '
 date: '2019-10-16T07:00:00.000Z'
 author: Scott Gallant
 draft: false
+prev: null
+next: /blog/creating-markdown-drafts
 ---
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/iPDCmbaEF0Y" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -13,7 +15,7 @@ Tina is not a CMS, in the traditional sense. As in, it’s not a _separate_ syst
 
 ![tina-announcement-gif](https://res.cloudinary.com/forestry-demo/image/upload/v1571244588/tina-cms-announcement-post.gif)
 
-When you install Tina, your site gets a floating _edit_ icon in the corner that toggles an editing pane (left) to expose the CMS fields. This gives your content editors a contextual editing experience that’s super intuitive. When you click "Save" Tina writes your content to external data sources, such as markdown or json files. Try the [Gatsby starter site](https://tinacms.org/docs/gatsby/quickstart) to see for yourself.
+When you install Tina, your site gets a floating _edit_ icon in the corner that toggles an editing pane (left) to expose the CMS fields. This gives your content editors a contextual editing experience that’s super intuitive. When you click "Save" Tina writes your content to external data sources, such as markdown or json files. Try the [Gatsby starter site](https://tinacms.org/guides/gatsby/adding-tina/project-setup) to see for yourself.
 
 ### Where does Tina store my content?
 
@@ -33,5 +35,4 @@ We're coming out of a monolithic CMS era and we believe next-gen sites need a ne
 
 - [TinaCMS Docs](https://tinacms.org/docs/getting-started/introduction)
 - [TinaCMS GitHub repo](https://github.com/tinacms/tinacms)
-- [Gatsby quick start](https://tinacms.org/docs/gatsby/quickstart)
 - [Tina Forum](https://community.tinacms.org/)

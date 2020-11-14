@@ -1,16 +1,21 @@
 import React from 'react'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { DefaultSeo } from 'next-seo'
 import { useRouter } from 'next/router'
 import { Overlay } from '../ui'
+import { DocumentationNavigation } from 'components/DocumentationNavigation'
+import { Footer } from './Footer'
+import { DocsTextWrapper } from './DocsTextWrapper'
+import { FeedbackForm } from 'components/forms'
 
 interface DocsLayoutProps {
-  isEditing: boolean
+  navItems: any
+  guide?: false | { category: string }
   children: any
 }
 
 export const DocsLayout = React.memo(
-  ({ isEditing, children }: DocsLayoutProps) => {
+  ({ children, navItems, guide = false }: DocsLayoutProps) => {
     const router = useRouter()
     return (
       <>
@@ -19,18 +24,19 @@ export const DocsLayout = React.memo(
             url: 'https://tinacms.org' + router.asPath,
           }}
         />
-        <DocsLayoutDiv isEditing={isEditing}>{children}</DocsLayoutDiv>
+        <DocsLayoutDiv>
+          <DocumentationNavigation navItems={navItems} guide={guide} />
+          <DocsTextWrapper>{children}</DocsTextWrapper>
+          <FeedbackForm />
+          <Footer light />
+        </DocsLayoutDiv>
       </>
     )
   }
 )
 
-interface DocsLayoutDivProps {
-  isEditing: boolean
-}
-
-const DocsLayoutDiv = styled.div<DocsLayoutDivProps>`
-  @media (min-width: 1000px) {
+const DocsLayoutDiv = styled.div`
+  @media (min-width: 1200px) {
     position: relative;
     padding: 0 0 0 16rem;
 

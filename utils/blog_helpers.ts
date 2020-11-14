@@ -7,7 +7,7 @@ export function orderPosts(posts) {
   return posts.slice().sort(sortByDate)
 }
 
-async function stripMarkdown(content): Promise<string> {
+export async function stripMarkdown(content): Promise<string> {
   const remark = require('remark')
   const strip = require('strip-markdown')
   return new Promise((resolve, reject) => {
@@ -39,12 +39,16 @@ function truncateAtWordBoundary(content: string, length: Number): string {
 
 const whitespace = /\s+/gm
 
-export async function formatExcerpt(content) {
+export async function formatExcerpt(
+  content,
+  length = 200,
+  ellipsis = '&hellip;'
+) {
   const plain = await (await stripMarkdown(content)).replace(whitespace, ' ')
-  const plainTextExcerpt = truncateAtWordBoundary(plain, 200)
+  const plainTextExcerpt = truncateAtWordBoundary(plain, length)
 
   if (plain.length > plainTextExcerpt.length) {
-    return removeEndingPunctuation(plainTextExcerpt) + '&hellip;'
+    return removeEndingPunctuation(plainTextExcerpt) + ellipsis
   }
 
   return plainTextExcerpt

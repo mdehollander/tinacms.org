@@ -23,6 +23,11 @@ You can also specify which packages you want to watch:
 TINA=../path/to/tinacms TINA_WATCH=@tinacms/forms,react-tinacms-inline
 ```
 
+> ### Warning
+>
+> This will only work for packages loaded by webpack. That means that environments which don't use
+> webpack (i.e. SSR builds) will not use this alias.
+
 ## Shortcodes
 
 This site supports shortcodes in Markdown content via [remark-shortcodes](https://github.com/djm/remark-shortcodes).
@@ -44,3 +49,25 @@ Call the shortcode in your content by writing the name of the component encased 
 ### Shortcode Limitations
 
 Shortcodes must be standalone elements; "wrapping" shortcodes will not work.
+
+## Copy-able Code Blocks
+
+A "Copy" button can be added to Code Blocks by adding the `copy` tag to fenced code blocks.
+
+Non-copyable JS
+
+    ```js
+    const christmastPresent = new Banana()
+    ```
+
+Copyable JS
+
+    ```js,copy
+    const christmastPresent = new Banana()
+    ```
+
+Copyable Text
+
+    ```copy
+    Hello World
+    ```

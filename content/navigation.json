@@ -2,7 +2,7 @@
   {
     "id": "docs",
     "label": "Docs",
-    "href": "/docs/getting-started/introduction",
+    "href": "/docs",
     "external": false
   },
   {
@@ -24,9 +24,9 @@
     "external": false
   },
   {
-    "id": "teams",
-    "label": "Teams",
-    "href": "/teams",
+    "id": "enterprise",
+    "label": "Enterprise",
+    "href": "/enterprise",
     "external": false
   }
 ]

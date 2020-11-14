@@ -10,24 +10,25 @@ import {
   BlockTextarea,
   BlocksControls,
 } from 'react-tinacms-inline'
-import { EditLink } from '../components/layout/EditLink'
+import { EditLink } from 'components/layout/EditLink'
 import { DefaultSeo } from 'next-seo'
-import { BlockTemplate } from 'tinacms'
-import { DynamicLink } from '../components/ui/DynamicLink'
+import { useCMS, BlockTemplate } from 'tinacms'
+import { DynamicLink } from 'components/ui/DynamicLink'
 import {
   Layout,
   Hero,
   Wrapper,
   Section,
   RichTextWrapper,
-} from '../components/layout'
+} from 'components/layout'
 
-import { Button, Video, ArrowList } from '../components/ui'
-import { OpenAuthoringSiteForm } from '../components/layout/OpenAuthoringSiteForm'
+import { Button, Video, ArrowList } from 'components/ui'
+import { InlineGithubForm } from 'components/layout/InlineGithubForm'
 import { useGithubJsonForm } from 'react-tinacms-github'
-import { getJsonPreviewProps } from '../utils/getJsonPreviewProps'
+import { getJsonPreviewProps } from 'utils/getJsonPreviewProps'
 
 const HomePage = (props: any) => {
+  const cms = useCMS()
   const [formData, form] = useGithubJsonForm(props.file, {
     label: 'Home Page',
     fields: [
@@ -103,19 +104,15 @@ const HomePage = (props: any) => {
   })
 
   return (
-    <OpenAuthoringSiteForm
-      form={form}
-      path={props.file.fileRelativePath}
-      preview={props.preview}
-    >
-      <Layout preview={props.preview}>
+    <InlineGithubForm form={form}>
+      <Layout>
         <DefaultSeo titleTemplate={formData.title + ' | %s'} />
         <Hero overlap narrow>
           <InlineTextareaField name="headline" />
         </Hero>
         <InlineField name="hero_video">
-          {({ status, input }) => {
-            return <Video src={input.value} autoPlay={status !== 'active'} />
+          {({ input }) => {
+            return <Video src={input.value} autoPlay={cms.disabled} />
           }}
         </InlineField>
 
@@ -129,21 +126,17 @@ const HomePage = (props: any) => {
                   </em>
                 </h2>
                 <CtaBar>
-                  <EditLink color="primary" preview={props.preview} />
-                  <DynamicLink
-                    href={'/docs/getting-started/introduction/'}
-                    passHref
-                  >
+                  <EditLink color="primary" />
+                  <DynamicLink href="/docs/" passHref>
                     <Button as="a">Get Started</Button>
                   </DynamicLink>
                 </CtaBar>
               </CtaLayout>
-              <InfoLayout>
-                <InlineBlocks
-                  name="three_points"
-                  blocks={SELLING_POINTS_BLOCKS}
-                />
-              </InfoLayout>
+              <InfoBlocks
+                name="three_points"
+                blocks={SELLING_POINTS_BLOCKS}
+                direction="horizontal"
+              />
             </RichTextWrapper>
           </Wrapper>
         </Section>
@@ -162,10 +155,7 @@ const HomePage = (props: any) => {
                     blocks={SETUP_POINT_BLOCKS}
                   />
                 </ArrowList>
-                <DynamicLink
-                  href={'/docs/getting-started/introduction/'}
-                  passHref
-                >
+                <DynamicLink href="/docs" passHref>
                   <Button as="a" color="primary">
                     Get Started
                   </Button>
@@ -193,7 +183,7 @@ export <b>WithTina</b>( <b>Component</b> );
           </Wrapper>
         </Section>
       </Layout>
-    </OpenAuthoringSiteForm>
+    </InlineGithubForm>
   )
 }
 
@@ -236,7 +226,6 @@ function SellingPoint({ data, index }) {
 }
 
 const selling_point_template: BlockTemplate = {
-  type: 'selling_point',
   label: 'Selling Point',
   defaultItem: {
     main: 'Tina is dope 🤙',
@@ -273,7 +262,6 @@ function SetupPoint({ data, index }) {
 }
 
 const setup_point_template: BlockTemplate = {
-  type: 'setup_point',
   label: 'Setup Point',
   defaultItem: {
     step: 'Make yourself a dang quesadilla',
@@ -324,7 +312,7 @@ const CodeExample = styled.code`
   }
 `
 
-const InfoLayout = styled.div`
+const InfoBlocks = styled(InlineBlocks)`
   display: grid;
   grid-gap: 2rem;
 
