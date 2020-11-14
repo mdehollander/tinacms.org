@@ -40,6 +40,10 @@
       },
       {
         "_template": "setup_point",
+        "step": "What else can you say"
+      },
+      {
+        "_template": "setup_point",
         "step": "Customize and define the content fields by passing an options argument"
       },
       {
