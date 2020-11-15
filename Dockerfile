@@ -9,12 +9,19 @@ ARG SIGNING_KEY=${SIGNING_KEY}
 
 WORKDIR /app
 
+RUN yarn config set --home enableTelemetry 0
 COPY package.json yarn.lock ./
 
+
+# Install only the production dependencies
+RUN yarn install --production --frozen-lockfile
+
+# Install development dependencies
 RUN yarn install --frozen-lockfile
 
 COPY . .
 
+RUN yarn next telemetry disable
 RUN yarn build
 #RUN yarn install --production --frozen-lockfile
 
