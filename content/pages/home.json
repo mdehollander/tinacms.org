@@ -1,6 +1,5 @@
 {
   "title": "Home",
-  "headline": "This site is running with Next.js and Tina. Update3",
   "description": "Tina is an open-source site editing toolkit for React-based sites like Gatsby & Next.js",
   "hero_video": "v1571425758/tina-hero-demo-v2",
   "hero_alt": "TinaCMS_video",
@@ -12,14 +11,14 @@
     },
     {
       "_template": "selling_point",
-      "main": "Choose your tools",
-      "supporting": "Use Tina with your favorite modern JavaScript frameworks. While currently compatible with most React-based workflows — specifically Gatsby, Next.js and React SPA’s — plan on adding Tina to your Vue, Gridsome or Nuxt projects very soon."
-    },
-    {
-      "_template": "selling_point",
       "main": "Tina is dope 🤙",
       "supporting": "It’s pretty much my favorite animal. It’s like a lion and a tiger mixed… bred for its skills in magic.",
       "color": "Orange (Primary)"
+    },
+    {
+      "_template": "selling_point",
+      "main": "Choose your tools",
+      "supporting": "Use Tina with your favorite modern JavaScript frameworks. While currently compatible with most React-based workflows — specifically Gatsby, Next.js and React SPA’s — plan on adding Tina to your Vue, Gridsome or Nuxt projects very soon."
     },
     {
       "_template": "selling_point",
@@ -65,9 +64,14 @@
       },
       {
         "_template": "setup_point",
+        "step": "Make yourself a dang quesadilla"
+      },
+      {
+        "_template": "setup_point",
         "step": "Customize and define the content fields by passing an options argument"
       }
     ],
     "code_ex": "/img/terminal.png"
-  }
+  },
+  "headline": "Lama and Alpaca"
 }
